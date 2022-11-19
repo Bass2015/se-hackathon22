@@ -10,15 +10,16 @@ TRAIN_DATA = '../data/train.csv'
 TEST_DATA = '../data/test.csv'
 TRAIN_IMG = '../data/train_test_data/train/'
 
-if __name__ == '__main':
+if __name__ == '__main__':
     # load data
     train_df, test_df = split_data_frame(pd.read_csv(TRAIN_DATA))
     loader_fact = LoaderFactory()
     train_DL = loader_fact.get_data_loader('../data/', train_df, train=True)
     test_DL = loader_fact.get_data_loader('../data/', train_df, train=True)
 
+
     # train splited data
-    splited_net = Net()
+    splited_net = Net((3, 332, 332), classes=3)
     trainer = Trainer(splited_net, train_DL)
     trainer.train()
     y_pred, y_true = splited_net.predict(test_DL)

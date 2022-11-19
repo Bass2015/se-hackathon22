@@ -8,8 +8,8 @@ TEST_DATA = '../data/test.csv'
 TRAIN_IMG = '../data/train_test_data/train/'
 
 def split_data_frame(df, train_frac=0.8):
-    train = df.sample(frac=train_frac)
-    test = df.drop(train.index)
+    train = df.sample(frac=train_frac).reset_index()
+    test = df.drop(train.index).reset_index()
     return train, test
 
 class ImageDataset(Dataset):
@@ -28,11 +28,17 @@ class ImageDataset(Dataset):
         sample = {'image': image}
         return sample
 
-class LabeledDataset(ImageDataset):
+class LabeledDataset(Dataset):
     def __init__(self,df,data_folder,transform):
-        super(LabeledDataset, self).__init__(df, data_folder, transform)
+        self.df = df
+        self.transform = transform
+        self.img_folder = data_folder
+        self.image_names = self.df[:]['example_path']
         self.labels = self.df[:]['label']
-    
+            
+    def __len__(self):
+        return len(self.image_names)
+
     def __getitem__(self,index):
         image=Image.open(self.img_folder+self.image_names.iloc[index])
         image=self.transform(image)
