@@ -3,7 +3,7 @@ import pandas as pd
 from model import Net, Trainer
 from data_manager import LoaderFactory, split_data_frame
 
-MODEL_PATH = '../saved_model/model.pth'
+MODEL_PATH = '../saved_models/model.pth'
 
 
 TRAIN_DATA = '../data/train.csv'
@@ -14,20 +14,20 @@ if __name__ == '__main__':
     # load data
     train_df, test_df = split_data_frame(pd.read_csv(TRAIN_DATA))
     loader_fact = LoaderFactory()
-    train_DL = loader_fact.get_data_loader('../data/', train_df, train=True)
-    test_DL = loader_fact.get_data_loader('../data/', train_df, train=True)
+    train_DL = loader_fact.get_data_loader('../data/', train_df, train=True, batch_size=64)
+    test_DL = loader_fact.get_data_loader('../data/', train_df, train=False, batch_size=64)
 
 
     # train splited data
     splited_net = Net((3, 332, 332), classes=3)
-    trainer = Trainer(splited_net, train_DL)
+    trainer = Trainer(splited_net, train_DL, epochs=50)
     trainer.train()
+    print('Predicting...')
     y_pred, y_true = splited_net.predict(test_DL)
+    print('Calculating score...')
     score = splited_net.score(y_pred, y_true)
-    print(f'Finished training, F1 score (macro) of {score}')
-        # train
-        # predict    
-        # calcualte f1 score
+    print(f'F1 score (macro) of {score}')
+        
 
     # train whole data
     # save model

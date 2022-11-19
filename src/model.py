@@ -6,15 +6,17 @@ import torch.optim as optim
 import time
 from torchmetrics import F1Score
 
+SAVING_PATH = '../saved_models/model_loss_{loss:.3f}.pth'
+
 class Net(nn.Module):
 	
     def __init__(self, input_shape, classes):
         super(Net, self).__init__()
         self.conv = nn.Sequential(
-                nn.Conv2d(input_shape[0], 6, 5),
+                nn.Conv2d(input_shape[0], 6, 3),
                 nn.ReLU(),
                 nn.MaxPool2d(2,2), 
-                nn.Conv2d(6, 16, 5),
+                nn.Conv2d(6, 16, 3),
                 nn.ReLU(),
                 nn.MaxPool2d(2,2))
         conv_out_size = self.__get_conv_out(input_shape)
@@ -63,12 +65,16 @@ class Trainer():
     def train(self):
         start = time.time()
         print(f'Training...')
+        lowest_loss = 10000
         for epoch in range(self.epochs): 
             running_loss = 0.0
             for i, data in enumerate(self.dataloader, 0):
                 inputs = data['image']
                 labels = data['labels']
                 loss = self.__training_step(inputs, labels)
+                if loss < lowest_loss:
+                    lowest_loss = loss
+                    torch.save(self.net.state_dict(), SAVING_PATH.format(loss=loss))
                 self.__show_info(epoch, running_loss, i, loss)
         total_time = time.time() - start
         print(f'Finished Training in {total_time/60} minutes.')
