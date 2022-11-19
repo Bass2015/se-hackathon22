@@ -1,9 +1,7 @@
-import torch
+import inout
 import pandas as pd
 from model import Net, Trainer
 from data_manager import LoaderFactory, split_data_frame
-
-MODEL_PATH = '../saved_models/model.pth'
 
 
 TRAIN_DATA = '../data/train.csv'
@@ -14,13 +12,13 @@ if __name__ == '__main__':
     # load data
     train_df, test_df = split_data_frame(pd.read_csv(TRAIN_DATA))
     loader_fact = LoaderFactory()
-    train_DL = loader_fact.get_data_loader('../data/', train_df, train=True, batch_size=64)
-    test_DL = loader_fact.get_data_loader('../data/', train_df, train=False, batch_size=64)
+    train_DL = loader_fact.get_data_loader('../data/', train_df, batch_size=64)
+    test_DL = loader_fact.get_data_loader('../data/', train_df, batch_size=64)
 
 
     # train splited data
     splited_net = Net((3, 332, 332), classes=3)
-    trainer = Trainer(splited_net, train_DL, epochs=50)
+    trainer = Trainer(splited_net, train_DL, epochs=30)
     trainer.train()
     print('Predicting...')
     y_pred, y_true = splited_net.predict(test_DL)
@@ -30,6 +28,13 @@ if __name__ == '__main__':
         
 
     # train whole data
-    # save model
-        # torch.save(net.state_dict(), MODEL_PATH)    
-    # predict+save predictions
+    full_df = pd.read_csv(TRAIN_DATA)
+    final_test_df = pd.read_csv(TEST_DATA)
+    full_DL = loader_fact.get_data_loader('../data/', full_df, batch_size=64)
+    final_test_DL = loader_fact.get_data_loader('../data/', final_test_df, batch_size=64, train=False)
+    final_net = Net((3, 332, 332), classes=3)
+    trainer = Trainer(final_net, full_DL, epochs=30)
+    trainer.train()
+    predictions = final_net.predict_not_labeled(final_test_DL)
+    inout.save_as_json('../predictions/predictions.json', predictions.detach().numpy())
+    

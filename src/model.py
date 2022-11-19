@@ -40,10 +40,20 @@ class Net(nn.Module):
                 inputs = data['image']
                 output = self.forward(inputs)
                 pred = output.cpu().data.max(1, keepdim=True)[1]
-                labels = data.get('labels', torch.full_like(pred, -1))
+                labels = data.get('labels', torch.full_like(pred, 15))
                 y_true = torch.cat((y_true, labels), dim=0)
                 y_pred = torch.cat((y_pred, pred), dim=0)
         return y_true.flatten(), y_pred.flatten()
+
+    def predict_not_labeled(self, data_loader):
+        y_pred = torch.LongTensor()   
+        with torch.no_grad():
+            for data in data_loader:
+                inputs = data['image']
+                output = self.forward(inputs)
+                pred = output.cpu().data.max(1, keepdim=True)[1]
+                y_pred = torch.cat((y_pred, pred), dim=0)
+        return y_pred.flatten()
 
     def score(self, y_pred, y_true):
         F1 = F1Score(num_classes=self.classes)
@@ -72,9 +82,6 @@ class Trainer():
                 inputs = data['image']
                 labels = data['labels']
                 loss = self.__training_step(inputs, labels)
-                if loss < lowest_loss:
-                    lowest_loss = loss
-                    torch.save(self.net.state_dict(), SAVING_PATH.format(loss=loss))
                 self.__show_info(epoch, running_loss, i, loss)
         total_time = time.time() - start
         print(f'Finished Training in {total_time/60} minutes.')

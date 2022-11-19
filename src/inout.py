@@ -1,36 +1,6 @@
 
 import numpy as np
-import pickle
 import json
-
-def save_trained_model(path: str, model):
-    """Saves a trained model as pickle file.
-    
-    Parameters
-    --------------
-    path: str
-        The path where we want to save the model.
-        Needs to come with the extension.
-    model:
-        The model to save
-    """
-    with open(path, 'wb') as file:
-        pickle.dump(model, file)
-
-def load_model_from_pickle(path: str):
-    """Loads a pretrained model. 
-    
-    Parameters
-    ---------
-    path: str
-        Path (with extension) to the file where the model is saved
-    
-    Returns
-    ----------
-    The loaded model
-    """
-    with open(path, 'rb') as f:
-        return pickle.load(f)
 
 def save_predictions(filename: str, predictions: np.ndarray):
     """
