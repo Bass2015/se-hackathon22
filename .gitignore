@@ -148,3 +148,5 @@ __pycache__/
 **/*.Server/GeneratedArtifacts
 **/*.Server/ModelManifest.xml
 _Pvt_Extensions
+
+src/data/
